@@ -8,14 +8,14 @@ let ball = {
     x: 60,
     y: 60,
     radius: 10,
-    color: 'blue',
+    color: 'white',
     speed: 2,
     dx: 0,
     dy: 0
 };
 
 let maze = [
-    { x: 0, y: 0, width: canvas.width, height: 20 },
+    { x: 0, y: 0, width: canvas.width, height: 30 },
     { x: 0, y: 0, width: 20, height: canvas.height },
     { x: 0, y: canvas.height - 20, width: canvas.width, height: 20 },
     { x: canvas.width - 20, y: 0, width: 20, height: canvas.height - 100 },
@@ -29,6 +29,12 @@ let maze = [
     { x: 80, y: 290, width: 320, height: 20 },
 ];
 
+let score = 0;
+let startX = 60;
+let startY = 60;
+let exitX = 395; 
+let exitY = 310;
+
 window.addEventListener('deviceorientation', handleOrientation);
 
 function handleOrientation(event) {
@@ -39,6 +45,7 @@ function handleOrientation(event) {
     ball.dy = beta < 90 ? -ball.speed : beta > 90 ? ball.speed : 0;
 
     moveBall();
+    checkExit();
     draw();
 }
 
@@ -75,8 +82,27 @@ function moveBall() {
     ball.y += ball.dy;
 }
 
+function checkExit() {
+    if (ball.x + ball.radius > exitX &&
+        ball.x - ball.radius < exitX + 20 &&
+        ball.y + ball.radius > exitY &&
+        ball.y - ball.radius < exitY + 20) {
+        score++;
+        ball.x = startX;
+        ball.y = startY;
+    }
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'black';
+    maze.forEach(wall => {
+        ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+    });
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(exitX, exitY, 5, 70);
 
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -84,10 +110,9 @@ function draw() {
     ctx.fill();
     ctx.closePath();
 
-    ctx.fillStyle = 'black';
-    maze.forEach(wall => {
-        ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
-    });
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Arial';
+    ctx.fillText('Score: ' + score, 170, 20);
 }
 
 draw();
